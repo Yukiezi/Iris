@@ -4,9 +4,10 @@ import me.jellysquid.mods.sodium.client.model.vertex.VanillaVertexTypes;
 import me.jellysquid.mods.sodium.client.model.vertex.buffer.VertexBufferView;
 import me.jellysquid.mods.sodium.client.model.vertex.buffer.VertexBufferWriterNio;
 import me.jellysquid.mods.sodium.client.model.vertex.formats.quad.QuadVertexSink;
-import me.jellysquid.mods.sodium.client.util.Norm3b;
 import net.coderbot.iris.compat.sodium.impl.vertex_format.entity_xhfp.QuadViewEntity;
+import net.coderbot.iris.vendored.joml.Vector3f;
 import net.coderbot.iris.vertices.IrisVertexFormats;
+import net.coderbot.iris.vertices.NormalHelper;
 
 import java.nio.ByteBuffer;
 
@@ -16,6 +17,7 @@ public class EntityVertexBufferWriterNio extends VertexBufferWriterNio implement
 	private float midU = 0;
 	private float midV = 0;
 	private int vertexCount;
+	private Vector3f normal = new Vector3f();
 
 	public EntityVertexBufferWriterNio(VertexBufferView backingBuffer) {
 		super(backingBuffer, VanillaVertexTypes.QUADS);
@@ -38,7 +40,6 @@ public class EntityVertexBufferWriterNio extends VertexBufferWriterNio implement
 		buffer.putFloat(i + 20, v);
 		buffer.putInt(i + 24, overlay);
 		buffer.putInt(i + 28, light);
-		buffer.putInt(i + 32, normal);
 		buffer.putShort(i + 36, (short) -1);
 		buffer.putShort(i + 38, (short) -1);
 
@@ -46,18 +47,25 @@ public class EntityVertexBufferWriterNio extends VertexBufferWriterNio implement
 		this.advance();
 
 		if (vertexCount == 4) {
-			this.endQuad(vertexCount, Norm3b.unpackX(normal), Norm3b.unpackY(normal), Norm3b.unpackZ(normal));
+			this.endQuad(vertexCount);
 		}
 	}
 
-	public void endQuad(int length, float normalX, float normalY, float normalZ) {
+	public void endQuad(int length) {
 		this.vertexCount = 0;
 		ByteBuffer buffer = this.byteBuffer;
 		int i = this.writeOffset;
 
 		quad.setup(buffer, i, STRIDE);
 
-		int tangent = quad.computeTangent(normalX, normalY, normalZ);
+		NormalHelper.computeFaceNormal(normal, quad);
+		int packedNormal = NormalHelper.packNormal(normal, 0.0f);
+
+		for (int vertex = 0; vertex < length; vertex++) {
+			buffer.putInt(i + 32 - STRIDE * vertex, packedNormal);
+		}
+
+		int tangent = quad.computeTangent(normal.x, normal.y, normal.z);
 
 		for (int vertex = 0; vertex < length; vertex++) {
 			buffer.putInt(i - 4 - STRIDE * vertex, tangent);
