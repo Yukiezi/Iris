@@ -10,6 +10,7 @@ import net.coderbot.iris.vertices.BlockSensitiveBufferBuilder;
 import net.coderbot.iris.vertices.IrisVertexFormats;
 import net.coderbot.iris.vertices.NormalHelper;
 import net.coderbot.iris.vertices.QuadView;
+import net.coderbot.iris.vertices.QuadViewVanilla;
 import net.irisshaders.iris.api.v0.IrisApi;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -33,7 +34,7 @@ public abstract class MixinBufferBuilder implements BufferVertexConsumer, BlockS
 	private int vertexCount;
 
 	@Unique
-	private final QuadView quad = new QuadView();
+	private final QuadViewVanilla quad = new QuadViewVanilla();
 
 	@Unique
 	private final Vector3f normal = new Vector3f();
