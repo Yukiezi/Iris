@@ -84,7 +84,7 @@ This is not a complete list, but is just for people trying to control-F their fa
 - All shaders made by RRe36 (except for "RRe36's Shader")
   - Kappa
   - KappaPT
-  - Nostalgia
+  - Nostalgia [version 1.1 works fine]
   - NostalgiaVX
   - Potato
   - Simplicissimus
